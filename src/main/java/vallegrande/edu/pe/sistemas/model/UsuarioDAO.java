@@ -9,6 +9,7 @@ import java.util.List;
 
 public class UsuarioDAO {
 
+    // Consulta los usuarios de la base de datos
     public List<Usuario> listar() {
         List<Usuario> lista = new ArrayList<>();
         String sql = "SELECT * FROM usuarios";
@@ -44,6 +45,41 @@ public class UsuarioDAO {
             stmt.setString(3, usuario.getCorreo());
             stmt.setString(4, usuario.getEstado());
 
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Actualiza un usuario existente
+    public void actualizar(Usuario usuario) {
+        String sql = "UPDATE usuarios SET nombre = ?, apellido = ?, correo = ?, estado = ? WHERE id = ?";
+
+        try (Connection conn = Conexion.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, usuario.getNombre());
+            stmt.setString(2, usuario.getApellido());
+            stmt.setString(3, usuario.getCorreo());
+            stmt.setString(4, usuario.getEstado());
+            stmt.setInt(5, usuario.getId());
+
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Elimina un usuario por su id
+    public void eliminar(int id) {
+        String sql = "DELETE FROM usuarios WHERE id = ?";
+
+        try (Connection conn = Conexion.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
             stmt.executeUpdate();
 
         } catch (SQLException e) {

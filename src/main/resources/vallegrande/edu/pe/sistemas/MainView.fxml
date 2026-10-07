@@ -6,11 +6,13 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
+            fx:controller="vallegrande.edu.pe.sistemas.view.MainView"
             prefWidth="800" prefHeight="600">
     <top>
         <HBox spacing="10" style="-fx-padding: 10;">
@@ -34,6 +36,8 @@
                 <TextField fx:id="txtCorreo" promptText="Correo"/>
                 <TextField fx:id="txtEstado" promptText="Estado"/>
                 <Button fx:id="btnRegistrar" text="Registrar"/>
+                <Button fx:id="btnActualizar" text="Actualizar"/>
+                <Button fx:id="btnEliminar" text="Eliminar"/>
                 <TableView fx:id="tablaUsuarios" prefHeight="300"/>
             </VBox>
         </StackPane>

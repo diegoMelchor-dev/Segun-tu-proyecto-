@@ -1,74 +1,42 @@
 package vallegrande.edu.pe.sistemas.view;
 
 import javafx.collections.FXCollections;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
+import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import vallegrande.edu.pe.sistemas.model.Usuario;
 
-import java.net.URL;
 import java.util.List;
 
 public class MainView {
 
-    private Button btnInicio;
-    private Button btnUsuarios;
-    private Button btnRegistrar;
-    private TextField txtNombre;
-    private TextField txtApellido;
-    private TextField txtCorreo;
-    private TextField txtEstado;
-    private VBox panelInicio;
-    private VBox panelUsuarios;
-    private TableView<Usuario> tablaUsuarios;
+    @FXML private Button btnInicio;
+    @FXML private Button btnUsuarios;
+    @FXML private Button btnRegistrar;
+    @FXML private Button btnActualizar;
+    @FXML private Button btnEliminar;
 
-    @SuppressWarnings("unchecked")
-    public MainView(Stage stage) {
-        try {
-            URL fxmlUrl = getClass().getResource("/MainView.fxml");
-            if (fxmlUrl == null) {
-                fxmlUrl = getClass().getResource("/vallegrande/edu/pe/sistemas/MainView.fxml");
-            }
-            if (fxmlUrl == null) {
-                fxmlUrl = getClass().getClassLoader().getResource("MainView.fxml");
-            }
-            if (fxmlUrl == null) {
-                throw new RuntimeException("¡Atención! No se encontró ningún archivo .fxml en resources.");
-            }
+    @FXML private TextField txtNombre;
+    @FXML private TextField txtApellido;
+    @FXML private TextField txtCorreo;
+    @FXML private TextField txtEstado;
 
-            FXMLLoader loader = new FXMLLoader(fxmlUrl);
-            Parent root = loader.load();
+    @FXML private VBox panelInicio;
+    @FXML private VBox panelUsuarios;
 
-            btnInicio = (Button) root.lookup("#btnInicio");
-            btnUsuarios = (Button) root.lookup("#btnUsuarios");
-            btnRegistrar = (Button) root.lookup("#btnRegistrar");
-            txtNombre = (TextField) root.lookup("#txtNombre");
-            txtApellido = (TextField) root.lookup("#txtApellido");
-            txtCorreo = (TextField) root.lookup("#txtCorreo");
-            txtEstado = (TextField) root.lookup("#txtEstado");
-            panelInicio = (VBox) root.lookup("#panelInicio");
-            panelUsuarios = (VBox) root.lookup("#panelUsuarios");
-            tablaUsuarios = (TableView<Usuario>) root.lookup("#tablaUsuarios");
+    @FXML private TableView<Usuario> tablaUsuarios;
 
-            crearColumnas();
-
-            Scene scene = new Scene(root);
-            stage.setTitle("Sistema de Gestión - Usuarios");
-            stage.setScene(scene);
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    // JavaFX llama a este método automáticamente al cargar el FXML
+    @FXML
+    public void initialize() {
+        crearColumnas();
+        mostrarInicio();
     }
 
-    // Define las columnas de la tabla
     private void crearColumnas() {
         TableColumn<Usuario, Integer> colId = new TableColumn<>("ID");
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -88,34 +56,7 @@ public class MainView {
         tablaUsuarios.getColumns().addAll(colId, colNombre, colApellido, colCorreo, colEstado);
     }
 
-    public Button getBtnInicio() {
-        return btnInicio;
-    }
-
-    public Button getBtnUsuarios() {
-        return btnUsuarios;
-    }
-
-    public Button getBtnRegistrar() {
-        return btnRegistrar;
-    }
-
-    public String getNombre() {
-        return txtNombre.getText();
-    }
-
-    public String getApellido() {
-        return txtApellido.getText();
-    }
-
-    public String getCorreo() {
-        return txtCorreo.getText();
-    }
-
-    public String getEstado() {
-        return txtEstado.getText();
-    }
-
+    // ---------- Navegación ----------
     public void mostrarInicio() {
         mostrarPanel(panelInicio, panelUsuarios);
     }
@@ -131,12 +72,43 @@ public class MainView {
         ocultar.setManaged(false);
     }
 
+    // ---------- Tabla ----------
     public void mostrarDatosUsuarios(List<Usuario> usuarios) {
         tablaUsuarios.setItems(FXCollections.observableArrayList(usuarios));
-        // Limpia el formulario después de registrar
+    }
+
+    public Usuario getUsuarioSeleccionado() {
+        return tablaUsuarios.getSelectionModel().getSelectedItem();
+    }
+
+    public TableView<Usuario> getTablaUsuarios() {
+        return tablaUsuarios;
+    }
+
+    // ---------- Formulario ----------
+    public void cargarUsuarioEnFormulario(Usuario usuario) {
+        txtNombre.setText(usuario.getNombre());
+        txtApellido.setText(usuario.getApellido());
+        txtCorreo.setText(usuario.getCorreo());
+        txtEstado.setText(usuario.getEstado());
+    }
+
+    public void limpiarFormulario() {
         txtNombre.clear();
         txtApellido.clear();
         txtCorreo.clear();
         txtEstado.clear();
     }
+
+    public String getNombre()   { return txtNombre.getText(); }
+    public String getApellido() { return txtApellido.getText(); }
+    public String getCorreo()   { return txtCorreo.getText(); }
+    public String getEstado()   { return txtEstado.getText(); }
+
+    // ---------- Botones ----------
+    public Button getBtnInicio()      { return btnInicio; }
+    public Button getBtnUsuarios()    { return btnUsuarios; }
+    public Button getBtnRegistrar()   { return btnRegistrar; }
+    public Button getBtnActualizar()  { return btnActualizar; }
+    public Button getBtnEliminar()    { return btnEliminar; }
 }

@@ -21,12 +21,29 @@ public class MainController {
         view.getBtnInicio().setOnAction(e -> {
             view.mostrarInicio();
         });
+
         view.getBtnUsuarios().setOnAction(e -> {
             view.mostrarUsuarios();
             cargarUsuarios();
         });
+
         view.getBtnRegistrar().setOnAction(e -> {
             registrarUsuario();
+        });
+
+        view.getBtnActualizar().setOnAction(e -> {
+            actualizarUsuario();
+        });
+
+        view.getBtnEliminar().setOnAction(e -> {
+            eliminarUsuario();
+        });
+
+        view.getTablaUsuarios().setOnMouseClicked(e -> {
+            Usuario usuario = view.getUsuarioSeleccionado();
+            if (usuario != null) {
+                view.cargarUsuarioEnFormulario(usuario);
+            }
         });
     }
 
@@ -43,5 +60,35 @@ public class MainController {
         usuario.setEstado(view.getEstado());
         usuarioDAO.insertar(usuario);
         cargarUsuarios();
+        view.limpiarFormulario();
+    }
+
+    private void actualizarUsuario() {
+        Usuario usuario = view.getUsuarioSeleccionado();
+
+        if (usuario == null) {
+            return;
+        }
+
+        usuario.setNombre(view.getNombre());
+        usuario.setApellido(view.getApellido());
+        usuario.setCorreo(view.getCorreo());
+        usuario.setEstado(view.getEstado());
+
+        usuarioDAO.actualizar(usuario);
+        cargarUsuarios();
+        view.limpiarFormulario();
+    }
+
+    private void eliminarUsuario() {
+        Usuario usuario = view.getUsuarioSeleccionado();
+
+        if (usuario == null) {
+            return;
+        }
+
+        usuarioDAO.eliminar(usuario.getId());
+        cargarUsuarios();
+        view.limpiarFormulario();
     }
 }
