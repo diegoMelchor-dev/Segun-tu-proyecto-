@@ -1,78 +1,90 @@
 package vallegrande.edu.pe.sistemas.view;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.TextFormatter;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import vallegrande.edu.pe.sistemas.model.Usuario;
 
 import java.util.List;
+import java.util.function.Function;
 
 public class MainView {
 
     @FXML private Button btnInicio;
     @FXML private Button btnUsuarios;
+    @FXML private Button btnPedidos;
     @FXML private Button btnRegistrar;
     @FXML private Button btnActualizar;
     @FXML private Button btnEliminar;
 
-    @FXML private TextField txtNombre;
-    @FXML private TextField txtApellido;
-    @FXML private TextField txtCorreo;
-    @FXML private TextField txtEstado;
-
     @FXML private VBox panelInicio;
     @FXML private VBox panelUsuarios;
+    @FXML private VBox panelPedidos;
+
+    @FXML private TextField txtNombre;
+    @FXML private TextField txtCorreo;
+    @FXML private TextField txtTelefono;
+    @FXML private ComboBox<String> cmbMotivo;
+    @FXML private TextArea txtMensaje;
 
     @FXML private TableView<Usuario> tablaUsuarios;
 
-    // JavaFX llama a este método automáticamente al cargar el FXML
+    private PedidosView pedidosView;
+
     @FXML
     public void initialize() {
-        crearColumnas();
-        mostrarInicio();
-    }
+        cmbMotivo.setItems(FXCollections.observableArrayList(
+                "Tengo una consulta",
+                "Quiero comprar cuys",
+                "Quiero comprar quinua",
+                "Quiero información sobre los productos"));
 
-    private void crearColumnas() {
-        TableColumn<Usuario, Integer> colId = new TableColumn<>("ID");
-        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        // El mensaje admite máximo 500 caracteres, igual que en la web
+        txtMensaje.setTextFormatter(new TextFormatter<String>(
+                c -> c.getControlNewText().length() <= 500 ? c : null));
 
-        TableColumn<Usuario, String> colNombre = new TableColumn<>("Nombre");
-        colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
+        tablaUsuarios.getColumns().addAll(
+                col("ID", u -> String.valueOf(u.getId())),
+                col("Nombre", Usuario::getNombre),
+                col("Correo", Usuario::getCorreo),
+                col("Teléfono", Usuario::getTelefono),
+                col("Motivo", Usuario::getMotivo),
+                col("Mensaje", Usuario::getMensaje),
+                col("Fecha", u -> String.valueOf(u.getFecha())));
+        tablaUsuarios.setPlaceholder(new javafx.scene.control.Label("Sin contactos"));
 
-        TableColumn<Usuario, String> colApellido = new TableColumn<>("Apellido");
-        colApellido.setCellValueFactory(new PropertyValueFactory<>("apellido"));
-
-        TableColumn<Usuario, String> colCorreo = new TableColumn<>("Correo");
-        colCorreo.setCellValueFactory(new PropertyValueFactory<>("correo"));
-
-        TableColumn<Usuario, String> colEstado = new TableColumn<>("Estado");
-        colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
-
-        tablaUsuarios.getColumns().addAll(colId, colNombre, colApellido, colCorreo, colEstado);
+        pedidosView = new PedidosView();
+        VBox.setVgrow(pedidosView, Priority.ALWAYS);
+        panelPedidos.getChildren().add(pedidosView);
     }
 
     // ---------- Navegación ----------
-    public void mostrarInicio() {
-        mostrarPanel(panelInicio, panelUsuarios);
+
+    public void mostrarInicio() { mostrarSolo(panelInicio); }
+
+    public void mostrarUsuarios() { mostrarSolo(panelUsuarios); }
+
+    public void mostrarPedidos() { mostrarSolo(panelPedidos); }
+
+    private void mostrarSolo(VBox panel) {
+        for (VBox p : new VBox[]{panelInicio, panelUsuarios, panelPedidos}) {
+            boolean activo = (p == panel);
+            p.setVisible(activo);
+            p.setManaged(activo);
+        }
     }
 
-    public void mostrarUsuarios() {
-        mostrarPanel(panelUsuarios, panelInicio);
-    }
+    // ---------- Datos de la tabla ----------
 
-    private void mostrarPanel(VBox mostrar, VBox ocultar) {
-        mostrar.setVisible(true);
-        mostrar.setManaged(true);
-        ocultar.setVisible(false);
-        ocultar.setManaged(false);
-    }
-
-    // ---------- Tabla ----------
     public void mostrarDatosUsuarios(List<Usuario> usuarios) {
         tablaUsuarios.setItems(FXCollections.observableArrayList(usuarios));
     }
@@ -81,34 +93,47 @@ public class MainView {
         return tablaUsuarios.getSelectionModel().getSelectedItem();
     }
 
-    public TableView<Usuario> getTablaUsuarios() {
-        return tablaUsuarios;
-    }
-
-    // ---------- Formulario ----------
-    public void cargarUsuarioEnFormulario(Usuario usuario) {
-        txtNombre.setText(usuario.getNombre());
-        txtApellido.setText(usuario.getApellido());
-        txtCorreo.setText(usuario.getCorreo());
-        txtEstado.setText(usuario.getEstado());
+    public void cargarUsuarioEnFormulario(Usuario u) {
+        txtNombre.setText(u.getNombre());
+        txtCorreo.setText(u.getCorreo());
+        txtTelefono.setText(u.getTelefono());
+        cmbMotivo.setValue(u.getMotivo());
+        txtMensaje.setText(u.getMensaje());
     }
 
     public void limpiarFormulario() {
         txtNombre.clear();
-        txtApellido.clear();
         txtCorreo.clear();
-        txtEstado.clear();
+        txtTelefono.clear();
+        cmbMotivo.setValue(null);
+        txtMensaje.clear();
+        tablaUsuarios.getSelectionModel().clearSelection();
     }
 
-    public String getNombre()   { return txtNombre.getText(); }
-    public String getApellido() { return txtApellido.getText(); }
-    public String getCorreo()   { return txtCorreo.getText(); }
-    public String getEstado()   { return txtEstado.getText(); }
+    // ---------- Getters del formulario ----------
 
-    // ---------- Botones ----------
-    public Button getBtnInicio()      { return btnInicio; }
-    public Button getBtnUsuarios()    { return btnUsuarios; }
-    public Button getBtnRegistrar()   { return btnRegistrar; }
-    public Button getBtnActualizar()  { return btnActualizar; }
-    public Button getBtnEliminar()    { return btnEliminar; }
+    public String getNombre() { return txtNombre.getText().trim(); }
+    public String getCorreo() { return txtCorreo.getText().trim(); }
+    public String getTelefono() { return txtTelefono.getText().trim(); }
+    public String getMotivo() { return cmbMotivo.getValue(); }
+    public String getMensaje() { return txtMensaje.getText().trim(); }
+
+    // ---------- Getters para el controlador ----------
+
+    public Button getBtnInicio() { return btnInicio; }
+    public Button getBtnUsuarios() { return btnUsuarios; }
+    public Button getBtnPedidos() { return btnPedidos; }
+    public Button getBtnRegistrar() { return btnRegistrar; }
+    public Button getBtnActualizar() { return btnActualizar; }
+    public Button getBtnEliminar() { return btnEliminar; }
+    public TableView<Usuario> getTablaUsuarios() { return tablaUsuarios; }
+    public PedidosView getPedidosView() { return pedidosView; }
+
+    // ---------- Utilidad ----------
+
+    private TableColumn<Usuario, String> col(String titulo, Function<Usuario, String> f) {
+        TableColumn<Usuario, String> c = new TableColumn<>(titulo);
+        c.setCellValueFactory(d -> new SimpleStringProperty(f.apply(d.getValue())));
+        return c;
+    }
 }

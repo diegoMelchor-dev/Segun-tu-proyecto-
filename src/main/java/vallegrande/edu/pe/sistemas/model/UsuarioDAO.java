@@ -9,10 +9,11 @@ import java.util.List;
 
 public class UsuarioDAO {
 
-    // Consulta los usuarios de la base de datos
+    // Lista los contactos, los más recientes primero
     public List<Usuario> listar() {
         List<Usuario> lista = new ArrayList<>();
-        String sql = "SELECT * FROM usuarios";
+        String sql = "SELECT id, nombre, correo, telefono, motivo, mensaje, fecha "
+                + "FROM contactos ORDER BY fecha DESC";
 
         try (Connection conn = Conexion.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -22,9 +23,11 @@ public class UsuarioDAO {
                 Usuario u = new Usuario();
                 u.setId(rs.getInt("id"));
                 u.setNombre(rs.getString("nombre"));
-                u.setApellido(rs.getString("apellido"));
                 u.setCorreo(rs.getString("correo"));
-                u.setEstado(rs.getString("estado"));
+                u.setTelefono(rs.getString("telefono"));
+                u.setMotivo(rs.getString("motivo"));
+                u.setMensaje(rs.getString("mensaje"));
+                u.setFecha(rs.getTimestamp("fecha"));
                 lista.add(u);
             }
         } catch (SQLException e) {
@@ -33,18 +36,19 @@ public class UsuarioDAO {
         return lista;
     }
 
-    // Inserta un usuario en la base de datos
-    public void insertar(Usuario usuario) {
-        String sql = "INSERT INTO usuarios (nombre, apellido, correo, estado) VALUES (?, ?, ?, ?)";
+    // Inserta un contacto (la fecha la pone la base de datos)
+    public void insertar(Usuario u) {
+        String sql = "INSERT INTO contactos (nombre, correo, telefono, motivo, mensaje) "
+                + "VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = Conexion.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, usuario.getNombre());
-            stmt.setString(2, usuario.getApellido());
-            stmt.setString(3, usuario.getCorreo());
-            stmt.setString(4, usuario.getEstado());
-
+            stmt.setString(1, u.getNombre());
+            stmt.setString(2, u.getCorreo());
+            stmt.setString(3, u.getTelefono());
+            stmt.setString(4, u.getMotivo());
+            stmt.setString(5, u.getMensaje());
             stmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -52,19 +56,20 @@ public class UsuarioDAO {
         }
     }
 
-    // Actualiza un usuario existente
-    public void actualizar(Usuario usuario) {
-        String sql = "UPDATE usuarios SET nombre = ?, apellido = ?, correo = ?, estado = ? WHERE id = ?";
+    // Actualiza un contacto existente
+    public void actualizar(Usuario u) {
+        String sql = "UPDATE contactos SET nombre = ?, correo = ?, telefono = ?, "
+                + "motivo = ?, mensaje = ? WHERE id = ?";
 
         try (Connection conn = Conexion.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, usuario.getNombre());
-            stmt.setString(2, usuario.getApellido());
-            stmt.setString(3, usuario.getCorreo());
-            stmt.setString(4, usuario.getEstado());
-            stmt.setInt(5, usuario.getId());
-
+            stmt.setString(1, u.getNombre());
+            stmt.setString(2, u.getCorreo());
+            stmt.setString(3, u.getTelefono());
+            stmt.setString(4, u.getMotivo());
+            stmt.setString(5, u.getMensaje());
+            stmt.setInt(6, u.getId());
             stmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -72,9 +77,9 @@ public class UsuarioDAO {
         }
     }
 
-    // Elimina un usuario por su id
+    // Elimina un contacto por su id
     public void eliminar(int id) {
-        String sql = "DELETE FROM usuarios WHERE id = ?";
+        String sql = "DELETE FROM contactos WHERE id = ?";
 
         try (Connection conn = Conexion.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {

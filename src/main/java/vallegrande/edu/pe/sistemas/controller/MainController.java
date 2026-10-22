@@ -10,10 +10,12 @@ public class MainController {
 
     private MainView view;
     private UsuarioDAO usuarioDAO;
+    private PedidosController pedidosController;
 
     public MainController(MainView view) {
         this.view = view;
         usuarioDAO = new UsuarioDAO();
+        pedidosController = new PedidosController(view.getPedidosView());
         configurarEventos();
     }
 
@@ -25,6 +27,11 @@ public class MainController {
         view.getBtnUsuarios().setOnAction(e -> {
             view.mostrarUsuarios();
             cargarUsuarios();
+        });
+
+        view.getBtnPedidos().setOnAction(e -> {
+            view.mostrarPedidos();
+            pedidosController.cargarPedidos();
         });
 
         view.getBtnRegistrar().setOnAction(e -> {
@@ -55,9 +62,10 @@ public class MainController {
     private void registrarUsuario() {
         Usuario usuario = new Usuario();
         usuario.setNombre(view.getNombre());
-        usuario.setApellido(view.getApellido());
         usuario.setCorreo(view.getCorreo());
-        usuario.setEstado(view.getEstado());
+        usuario.setTelefono(view.getTelefono());
+        usuario.setMotivo(view.getMotivo());
+        usuario.setMensaje(view.getMensaje());
         usuarioDAO.insertar(usuario);
         cargarUsuarios();
         view.limpiarFormulario();
@@ -71,9 +79,10 @@ public class MainController {
         }
 
         usuario.setNombre(view.getNombre());
-        usuario.setApellido(view.getApellido());
         usuario.setCorreo(view.getCorreo());
-        usuario.setEstado(view.getEstado());
+        usuario.setTelefono(view.getTelefono());
+        usuario.setMotivo(view.getMotivo());
+        usuario.setMensaje(view.getMensaje());
 
         usuarioDAO.actualizar(usuario);
         cargarUsuarios();
